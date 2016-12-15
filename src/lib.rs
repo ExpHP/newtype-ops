@@ -544,46 +544,208 @@ macro_rules! newtype_ops__ {
 #[cfg(test)]
 mod tests {
 
-	mod foo { #[derive(Eq,PartialEq,Copy,Clone,Debug)] pub struct Foo(pub i32); }
-	pub struct Bar(pub i32);
-	newtype_ops!{ {[foo::Foo][Bar]} integer {:=} {^&}Self {^&}Self }
-	newtype_ops!{ {[foo::Foo][Bar]} integer {:=} {^&}Self {^&}i32 }
+	// test:
+	//  * All possible impls for a primitive element
+	//  * A Cartesian product in many dimensions
+	//  * A type that is more than one token tree long (foo::Foo)
+	//  * Self types that do not derive Copy/Clone
+	mod broad_1 {
+		mod foo {
+			#[derive(Eq,PartialEq,Debug)]
+			pub struct Foo(pub i32);
+		}
+		#[derive(Eq,PartialEq,Debug)]
+		pub struct Bar(pub i32);
 
-	#[derive(PartialEq,Clone,Debug)] // ensure impls don't implicitly require Copy
-	pub struct Baz(pub f32);
-	newtype_ops!{ [Baz] {add sub div neg} {:=} {^&}Self {^&}Self }
-	newtype_ops!{ [Baz] {add sub div neg} {:=} {^&}Self {^&}f32 }
+		newtype_ops!{ {[foo::Foo][Bar]} integer {:=} {^&}Self {^&}{Self i32} }
 
-	#[derive(PartialEq,Clone,Debug)]
-	pub struct MyString(String);
-	newtype_ops!{ [MyString] {add} {:} ^Self &{Self str} }
+		use self::foo::Foo;
+		#[test]
+		fn test() {
 
-	#[test] fn test_test_test_test() {
-		use tests::foo::Foo;
-		assert_eq!(Foo(5), Foo(2) + Foo(3));
-		assert_eq!(Foo(5), Foo(2) + &Foo(3));
-		assert_eq!(Foo(5), &Foo(2) + Foo(3));
-		assert_eq!(Foo(5), &Foo(2) + &Foo(3));
+			// check that all desired impls work
+			assert_eq!(Foo(5), Foo(2) + Foo(3));
+			assert_eq!(Foo(5), Foo(2) + &Foo(3));
+			assert_eq!(Foo(5), &Foo(2) + Foo(3));
+			assert_eq!(Foo(5), &Foo(2) + &Foo(3));
 
-		assert_eq!(Foo(4), Foo(8) / 2);
-		assert_eq!(Foo(4), &Foo(8) / 2);
-		assert_eq!(Foo(4), Foo(8) / &2);
-		assert_eq!(Foo(4), &Foo(8) / &2);
+			assert_eq!(Foo(4), Foo(8) / 2);
+			assert_eq!(Foo(4), &Foo(8) / 2);
+			assert_eq!(Foo(4), Foo(8) / &2);
+			assert_eq!(Foo(4), &Foo(8) / &2);
 
-		assert_eq!(Foo(-3), -Foo(3));
-		assert_eq!(Foo(-3), -&Foo(3));
+			assert_eq!(Foo(-3), -Foo(3));
+			assert_eq!(Foo(-3), -&Foo(3));
 
-		assert_eq!(Baz(5.), Baz(2.) + Baz(3.));
-		assert_eq!(Baz(5.), Baz(2.) + &Baz(3.));
-		assert_eq!(Baz(5.), &Baz(2.) + Baz(3.));
-		assert_eq!(Baz(5.), &Baz(2.) + &Baz(3.));
+			// check that Bar was not neglected
+			assert_eq!(Bar(5), Bar(2) + Bar(3));
 
-		assert_eq!(Baz(4.), Baz(8.) / 2.);
-		assert_eq!(Baz(4.), &Baz(8.) / 2.);
-		assert_eq!(Baz(4.), Baz(8.) / &2.);
-		assert_eq!(Baz(4.), &Baz(8.) / &2.);
+			let mut foo = Foo(4);
+			foo += 2;
+			assert_eq!(foo, Foo(6));
+			foo += Foo(2);
+			assert_eq!(foo, Foo(8));
+		}
+	}
 
-		assert_eq!(Baz(-3.), -Baz(3.));
-		assert_eq!(Baz(-3.), -&Baz(3.));
+	// test:
+	//  * Element (not just Self) types that do not derive Copy/Clone
+	//  * That multiple layers of indirection are possible.
+	mod proper_forwarding {
+
+		#[derive(Eq,PartialEq,Debug)]
+		pub struct Inner(pub i32);
+		#[derive(Eq,PartialEq,Debug)]
+		pub struct Foo(pub Inner);
+
+		newtype_ops!{ [Inner] {add div neg} {assign normal} {^&}Self {^&}{Self i32}   }
+		newtype_ops!{ [Foo]   {add div neg} {assign normal} {^&}Self {^&}{Self Inner i32} }
+
+		#[test]
+		fn test() {
+			let foo = |x| Foo(Inner(x));
+
+			// check that all desired impls work
+			assert_eq!(foo(4), foo(8) / foo(2));
+			assert_eq!(foo(4), foo(8) / &foo(2));
+			assert_eq!(foo(4), &foo(8) / foo(2));
+			assert_eq!(foo(4), &foo(8) / &foo(2));
+
+			assert_eq!(foo(4), foo(8) / Inner(2));
+			assert_eq!(foo(4), &foo(8) / Inner(2));
+			assert_eq!(foo(4), foo(8) / &Inner(2));
+			assert_eq!(foo(4), &foo(8) / &Inner(2));
+
+			assert_eq!(foo(4), foo(8) / 2);
+			assert_eq!(foo(4), &foo(8) / 2);
+			assert_eq!(foo(4), foo(8) / &2);
+			assert_eq!(foo(4), &foo(8) / &2);
+
+			assert_eq!(foo(-3), -foo(3));
+			assert_eq!(foo(-3), -&foo(3));
+
+			let mut x = foo(4);
+			x += foo(2);
+			assert_eq!(x, foo(6));
+			x += Inner(2);
+			assert_eq!(x, foo(8));
+			x += 2;
+			assert_eq!(x, foo(10));
+		}
+	}
+
+	// test:
+	//  * that the right names link to the right operations
+	mod op_bindings {
+		// Make a separate struct for each operator to ensure that the right token
+		//  generates implementations for the right trait.
+		macro_rules! make_structs {
+			($($T:ident),*) => {$(
+				#[derive(Eq,PartialEq,Debug,Copy,Clone)]
+				pub struct $T(pub i32);
+				impl From<i32> for $T {
+					fn from(x: i32) -> $T { $T(x) }
+				}
+			)*};
+		}
+		// (each struct will be named after its std::ops trait)
+		make_structs!{ Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Neg, Not }
+
+		newtype_ops!{ [Add]    add    {assign normal} Self Self }
+		newtype_ops!{ [Sub]    sub    {assign normal} Self Self }
+		newtype_ops!{ [Mul]    mul    {assign normal} Self Self }
+		newtype_ops!{ [Div]    div    {assign normal} Self Self }
+		newtype_ops!{ [Rem]    rem    {assign normal} Self Self }
+		newtype_ops!{ [BitAnd] bitand {assign normal} Self Self }
+		newtype_ops!{ [BitOr]  bitor  {assign normal} Self Self }
+		newtype_ops!{ [BitXor] bitxor {assign normal} Self Self }
+		newtype_ops!{ [Neg]    neg    {assign normal} Self }
+		newtype_ops!{ [Not]    not    {assign normal} Self }
+
+		// Tests on operator output ensure the right methods of the underlying type are invoked.
+		fn run_binary_tests<T,F1,G1,F2,G2>(int_func: F1, foo_func: G1, int_eq: F2, foo_eq: G2)
+		where
+			T: ::std::fmt::Debug + From<i32> + Eq,
+			F1: Fn(i32, i32) -> i32, G1: Fn(T, T) -> T,
+			F2: Fn(&mut i32, i32),   G2: Fn(&mut T, T),
+		{
+			for a in 1..10 {
+				for b in 1..10 {
+					let expected: T = int_func(a, b).into();
+					let actual:   T = foo_func(a.into(), b.into());
+					assert_eq!(actual, expected, "ouchie");
+
+					let expected: T = { let mut x = a; int_eq(&mut x, b); x }.into();
+					let actual:   T = { let mut x = a.into(); foo_eq(&mut x, b.into()); x };
+					assert_eq!(actual, expected, "eihcuo");
+				}
+			}
+		}
+
+		fn run_unary_tests<T,F,G>(int_func: F, foo_func: G)
+		where T: ::std::fmt::Debug + From<i32> + Eq, F: Fn(i32) -> i32, G: Fn(T) -> T
+		{
+			for a in 1..10 {
+				let expected: T = int_func(a).into();
+				let actual:   T = foo_func(a.into());
+				assert_eq!(actual, expected, "ouchie");
+			}
+		}
+
+		#[test]
+		fn test() {
+			run_binary_tests::<Add   ,_,_,_,_>(|a,b| a + b, |a,b| a + b, |a,b| *a += b, |a,b| *a += b);
+			run_binary_tests::<Sub   ,_,_,_,_>(|a,b| a - b, |a,b| a - b, |a,b| *a -= b, |a,b| *a -= b);
+			run_binary_tests::<Mul   ,_,_,_,_>(|a,b| a * b, |a,b| a * b, |a,b| *a *= b, |a,b| *a *= b);
+			run_binary_tests::<Div   ,_,_,_,_>(|a,b| a / b, |a,b| a / b, |a,b| *a /= b, |a,b| *a /= b);
+			run_binary_tests::<Rem   ,_,_,_,_>(|a,b| a % b, |a,b| a % b, |a,b| *a %= b, |a,b| *a %= b);
+			run_binary_tests::<BitAnd,_,_,_,_>(|a,b| a & b, |a,b| a & b, |a,b| *a &= b, |a,b| *a &= b);
+			run_binary_tests::<BitOr ,_,_,_,_>(|a,b| a | b, |a,b| a | b, |a,b| *a |= b, |a,b| *a |= b);
+			run_binary_tests::<BitXor,_,_,_,_>(|a,b| a ^ b, |a,b| a ^ b, |a,b| *a ^= b, |a,b| *a ^= b);
+			run_unary_tests::<Neg,_,_>(|a| -a, |a| -a);
+			run_unary_tests::<Not,_,_>(|a| !a, |a| !a);
+		}
+
+		// ensure that the above tests are capable of failure.  (How meta.)
+		#[test] #[should_panic(expected = "ouchie")]
+		fn bad_binary() {
+			run_binary_tests::<Add   ,_,_,_,_>(|a,b| a * b, |a,b| a + b, |a,b| *a += b, |a,b| *a += b);
+		}
+
+		#[test] #[should_panic(expected = "eihcuo")]
+		fn bad_assign() {
+			run_binary_tests::<Add   ,_,_,_,_>(|a,b| a + b, |a,b| a + b, |a,b| *a *= b, |a,b| *a += b);
+		}
+
+		#[test] #[should_panic(expected = "ouchie")]
+		fn bad_unary() {
+			run_unary_tests::<Neg,_,_>(|a| !a, |a| -a);
+		}
+	}
+
+	// let us not restrict ourselves exclusively to numeric types
+	mod string {
+		#[derive(PartialEq,Clone,Debug)]
+		pub struct MyString(String);
+		newtype_ops!{ [MyString] {add} {:=} ^Self &{Self str} }
+
+		#[test]
+		fn test() {
+			assert_eq!(
+				MyString("Hello world".to_string()) + "!",
+				MyString("Hello world!".to_string())
+			)
+		}
+
+		// This DISABLED test documents a known victim of the rule that forbids OpAssign<&U> impls;
+		// were it not for that rule, this test would succeed.
+		#[cfg(nope)] // FIXME
+		#[test]
+		fn victim() {
+			// use `String: for<'a> AddAssign<&'a str>`
+			let mut s = MyString("Hello world".to_string());
+			s += "!";
+			assert_eq!(s, MyString("Hello world!".to_string()));
+		}
 	}
 }
