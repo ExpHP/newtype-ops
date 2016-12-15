@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["newtype_ops","A macro for mass-forwarding operator impls on newtypes."],["newtype_ops__","implementation detail, go away"]]});
