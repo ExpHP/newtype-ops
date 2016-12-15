@@ -22,7 +22,7 @@ So for once I have finally decided to actually publish a crate this time.
 
 ```toml
 [dependencies]
-newtype-ops = "0.1.3"
+newtype-ops = "0.1"
 ```
 
 Documentation
