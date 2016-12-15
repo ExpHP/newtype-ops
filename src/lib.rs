@@ -13,6 +13,8 @@
 
 /// A macro for mass-forwarding operator impls on newtypes.
 ///
+/// Some examples:
+///
 /// ```rust
 /// #[macro_use]
 /// extern crate newtype_ops;
@@ -102,15 +104,24 @@
 ///          The labeled invocations are thus ignored to avoid generating
 ///          multiple conflicting impls.
 
+// The next line -- an empty '///' -- seems to be necessary for the subheading to appear...
+///
 /// ## Other notes:
 ///
-/// There are word equivalents for `:` (`normal`) and `=` (`assign`).
+/// There are four words which stand in for **groups of operators:**
 ///
-/// There are deliberately NOT operator shortcuts such as `+` for `add`,
-/// because it is too easy to accidentally embed a comment delimiter (`+-*/%`).
+/// * `arithmetic` is equivalent to `{add sub mul div rem neg}`
+/// * `arith_ring` is equivalent to `{add sub mul neg}`
+/// * `bitwise` is equivalent to `{bitand bitor bitxor not}`
+/// * `integer` is equivalent to `{arithmetic bitwise}`
 ///
-/// The caret `^` before value types can be omitted.
-/// Its raison d'être is to give you something to put in a cartesian product, as `{^&}`.
+/// There are also **word equivalents** for `:` (`normal`) and `=` (`assign`).
+///
+/// **There are deliberately NOT operator shortcuts** such as `+` for `add`,
+/// because it is too easy to accidentally embed a comment delimiter: `{+-*/%}`
+///
+/// **The caret `^` before value types can be omitted.**
+/// Its raison d'être is to give you something to put in a cartesian product.
 ///
 /// ```rust
 /// # #[macro_use] extern crate newtype_ops;
@@ -132,7 +143,7 @@
 /// The implemented type is bracketed (a) to help parse it,
 /// and (b) so that it can use a cartesian product,
 /// which currently operates specifically on token trees.
-/// This is valid:
+/// E.g. this is valid:
 ///
 /// ```rust
 /// # #[macro_use] extern crate newtype_ops;
@@ -229,6 +240,7 @@ macro_rules! newtype_ops__ {
 		newtype_ops__!{ @interpret::oper(add $($rest)*) -> ($($args)*) }
 		newtype_ops__!{ @interpret::oper(sub $($rest)*) -> ($($args)*) }
 		newtype_ops__!{ @interpret::oper(mul $($rest)*) -> ($($args)*) }
+		newtype_ops__!{ @interpret::oper(neg $($rest)*) -> ($($args)*) }
 	};
 
 	(@interpret::oper(bitwise $($rest:tt)*) -> ($($args:tt)*)) => {
