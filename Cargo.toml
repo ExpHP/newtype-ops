@@ -1,6 +1,10 @@
 [package]
 name = "newtype-ops"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+description = "Mass-derive many operators for newtypes. Wartier than newtype_derive."
+repository = "https://github.com/ExpHP/newtype-ops"
+license = "WTFPL"
+keywords = ["helper", "macro"]
 
 [dependencies]
