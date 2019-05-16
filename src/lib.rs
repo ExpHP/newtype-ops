@@ -170,8 +170,8 @@ macro_rules! newtype_ops {
 	($($rest:tt)*) => { newtype_ops__!{ @product::next($($rest)*) -> () }};
 }
 
-/// implementation detail, go away
 #[macro_export]
+#[doc(hidden)]
 macro_rules! newtype_ops__ {
 
 	//----------------------
