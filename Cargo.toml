@@ -7,5 +7,6 @@ documentation = "https://docs.rs/newtype-ops"
 repository = "https://github.com/ExpHP/newtype-ops"
 license = "WTFPL"
 keywords = ["helper", "macro"]
+edition = "2018"
 
 [dependencies]

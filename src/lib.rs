@@ -7,6 +7,8 @@
 //! An attempt to provide a macro for mass-forwarding impls for newtypes.
 //!
 //! Is currently "usable" for wrappers around primitives and some awkward special cases.
+//!
+//! There is comprehensive documentation on the [`newtype_ops`] macro.
 
 #![cfg_attr(test, feature(trace_macros))]
 #[cfg(test)] trace_macros!(true);
@@ -16,8 +18,7 @@
 /// Some examples:
 ///
 /// ```rust
-/// #[macro_use]
-/// extern crate newtype_ops;
+/// use newtype_ops::newtype_ops;
 ///
 /// // derive everything under the sun
 /// pub struct Foo(pub i32);
@@ -31,7 +32,7 @@
 /// These two impls are equivalent to this:
 ///
 /// ```rust
-/// # #[macro_use] extern crate newtype_ops;
+/// # use newtype_ops::newtype_ops;
 /// # pub struct Foo(pub i32);
 /// # pub struct Bar(pub f32);
 /// newtype_ops! { [Foo] {add sub mul div rem neg
@@ -45,7 +46,7 @@
 /// impls are labeled in comments.
 ///
 /// ```rust
-/// # #[macro_use] extern crate newtype_ops;
+/// # use newtype_ops::newtype_ops;
 /// # pub struct Foo(pub i32);
 /// # pub struct Bar(pub f32);
 /// newtype_ops! { [Bar] add : ^Self ^Self } // impl Add<Bar>  for Bar { ... }
@@ -124,7 +125,7 @@
 /// Its raison d'être is to give you something to put in a cartesian product.
 ///
 /// ```rust
-/// # #[macro_use] extern crate newtype_ops;
+/// # use newtype_ops::newtype_ops;
 /// # pub struct Foo(pub i32);
 /// # pub struct Bar(pub f32);
 /// newtype_ops! { [Bar] add : Self Self }
@@ -134,7 +135,7 @@
 /// This is for the sake of unary ops, but it currently also affects others...
 ///
 /// ```rust
-/// # #[macro_use] extern crate newtype_ops;
+/// # use newtype_ops::newtype_ops;
 /// # pub struct Bar(pub f32);
 /// newtype_ops! { [Bar] neg : Self } // Allowed
 /// newtype_ops! { [Bar] add : Self } // Also allowed (but discouraged; may change)
@@ -146,7 +147,7 @@
 /// E.g. this is valid:
 ///
 /// ```rust
-/// # #[macro_use] extern crate newtype_ops;
+/// # use newtype_ops::newtype_ops;
 /// pub mod foo {
 ///     struct Foo(pub i32);
 /// }
@@ -165,12 +166,12 @@
 /// The `Index`, `Deref`, and `Fn` trait hierarchies are considered in-scope for future additions,
 /// but hell if I know how to fit them into the existing interface.
 
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! newtype_ops {
 	($($rest:tt)*) => { newtype_ops__!{ @product::next($($rest)*) -> () }};
 }
 
-#[macro_export]
+#[macro_export(local_inner_macros)]
 #[doc(hidden)]
 macro_rules! newtype_ops__ {
 
