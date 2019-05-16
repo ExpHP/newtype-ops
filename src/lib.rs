@@ -49,42 +49,42 @@
 /// # use newtype_ops::newtype_ops;
 /// # pub struct Foo(pub i32);
 /// # pub struct Bar(pub f32);
-/// newtype_ops! { [Bar] add : ^Self ^Self } // impl Add<Bar>  for Bar { ... }
-/// newtype_ops! { [Bar] add : ^Self ^i32  } // impl Add<i32>  for Bar { ... }
-/// newtype_ops! { [Bar] add : ^Self &Self } // impl Add<&Bar> for Bar { ... }
-/// newtype_ops! { [Bar] add : ^Self &i32  } // impl Add<&i32> for Bar { ... }
-/// newtype_ops! { [Bar] add : &Self ^Self } // impl Add<Bar>  for &Bar { ... }
-/// newtype_ops! { [Bar] add : &Self ^i32  } // impl Add<i32>  for &Bar { ... }
-/// newtype_ops! { [Bar] add : &Self &Self } // impl Add<&Bar> for &Bar { ... }
-/// newtype_ops! { [Bar] add : &Self &i32  } // impl Add<&i32> for &Bar { ... }
-/// newtype_ops! { [Bar] add = ^Self ^Self } // impl AddAssign<Bar> for Bar { ... }
-/// newtype_ops! { [Bar] add = ^Self ^i32  } // impl AddAssign<i32> for Bar { ... }
-/// newtype_ops! { [Bar] add = ^Self &Self } // Silently ignored [b]
-/// newtype_ops! { [Bar] add = ^Self &i32  } // Silently ignored [b]
-/// newtype_ops! { [Bar] add = &Self ^Self } // Silently ignored [a]
-/// newtype_ops! { [Bar] add = &Self ^i32  } // Silently ignored [a]
-/// newtype_ops! { [Bar] add = &Self &Self } // Silently ignored [a]
-/// newtype_ops! { [Bar] add = &Self &i32  } // Silently ignored [a]
+/// newtype_ops! { [Foo] add : ^Self ^Self } // impl Add<Foo>  for Foo { ... }
+/// newtype_ops! { [Foo] add : ^Self ^i32  } // impl Add<i32>  for Foo { ... }
+/// newtype_ops! { [Foo] add : ^Self &Self } // impl Add<&Foo> for Foo { ... }
+/// newtype_ops! { [Foo] add : ^Self &i32  } // impl Add<&i32> for Foo { ... }
+/// newtype_ops! { [Foo] add : &Self ^Self } // impl Add<Foo>  for &Foo { ... }
+/// newtype_ops! { [Foo] add : &Self ^i32  } // impl Add<i32>  for &Foo { ... }
+/// newtype_ops! { [Foo] add : &Self &Self } // impl Add<&Foo> for &Foo { ... }
+/// newtype_ops! { [Foo] add : &Self &i32  } // impl Add<&i32> for &Foo { ... }
+/// newtype_ops! { [Foo] add = ^Self ^Self } // impl AddAssign<Foo> for Foo { ... }
+/// newtype_ops! { [Foo] add = ^Self ^i32  } // impl AddAssign<i32> for Foo { ... }
+/// newtype_ops! { [Foo] add = ^Self &Self } // Silently ignored [b]
+/// newtype_ops! { [Foo] add = ^Self &i32  } // Silently ignored [b]
+/// newtype_ops! { [Foo] add = &Self ^Self } // Silently ignored [a]
+/// newtype_ops! { [Foo] add = &Self ^i32  } // Silently ignored [a]
+/// newtype_ops! { [Foo] add = &Self &Self } // Silently ignored [a]
+/// newtype_ops! { [Foo] add = &Self &i32  } // Silently ignored [a]
 /// // ... Sub impls ...
 /// // ... Mul impls ...
 /// // ... Div impls ...
 /// // ... Rem impls ...
-/// newtype_ops! { [Bar] neg : ^Self ^Self } // impl Neg for Bar { ... }
-/// newtype_ops! { [Bar] neg : ^Self ^i32  } // Silently ignored [c]
-/// newtype_ops! { [Bar] neg : ^Self &Self } // Silently ignored [c]
-/// newtype_ops! { [Bar] neg : ^Self &i32  } // Silently ignored [c]
-/// newtype_ops! { [Bar] neg : &Self ^Self } // impl Neg for &Bar { ... }
-/// newtype_ops! { [Bar] neg : &Self ^i32  } // Silently ignored [c]
-/// newtype_ops! { [Bar] neg : &Self &Self } // Silently ignored [c]
-/// newtype_ops! { [Bar] neg : &Self &i32  } // Silently ignored [c]
-/// newtype_ops! { [Bar] neg = ^Self ^Self } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = ^Self ^i32  } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = ^Self &Self } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = ^Self &i32  } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = &Self ^Self } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = &Self ^i32  } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = &Self &Self } // Silently ignored [a]
-/// newtype_ops! { [Bar] neg = &Self &i32  } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg : ^Self ^Self } // impl Neg for Foo { ... }
+/// newtype_ops! { [Foo] neg : ^Self ^i32  } // Silently ignored [c]
+/// newtype_ops! { [Foo] neg : ^Self &Self } // Silently ignored [c]
+/// newtype_ops! { [Foo] neg : ^Self &i32  } // Silently ignored [c]
+/// newtype_ops! { [Foo] neg : &Self ^Self } // impl Neg for &Foo { ... }
+/// newtype_ops! { [Foo] neg : &Self ^i32  } // Silently ignored [c]
+/// newtype_ops! { [Foo] neg : &Self &Self } // Silently ignored [c]
+/// newtype_ops! { [Foo] neg : &Self &i32  } // Silently ignored [c]
+/// newtype_ops! { [Foo] neg = ^Self ^Self } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = ^Self ^i32  } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = ^Self &Self } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = ^Self &i32  } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = &Self ^Self } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = &Self ^i32  } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = &Self &Self } // Silently ignored [a]
+/// newtype_ops! { [Foo] neg = &Self &i32  } // Silently ignored [a]
 /// ```
 
 /// **_Holy blazing swordfish,_** you should reply,
@@ -149,7 +149,7 @@
 /// ```rust
 /// # use newtype_ops::newtype_ops;
 /// pub mod foo {
-///     struct Foo(pub i32);
+///     pub struct Foo(pub i32);
 /// }
 /// pub struct Bar(pub i32);
 /// pub struct Generic<T>(T);
