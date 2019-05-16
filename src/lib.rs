@@ -10,8 +10,8 @@
 //!
 //! There is comprehensive documentation on the [`newtype_ops`] macro.
 
-#![cfg_attr(test, feature(trace_macros))]
-#[cfg(test)] trace_macros!(true);
+#![cfg_attr(feature = "debug-trace-macros", feature(trace_macros))]
+#[cfg(feature = "debug-trace-macros")] trace_macros!(true);
 
 /// A macro for mass-forwarding operator impls on newtypes.
 ///

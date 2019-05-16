@@ -10,3 +10,10 @@ keywords = ["helper", "macro"]
 edition = "2018"
 
 [dependencies]
+
+[features]
+
+# For debug purposes only.
+#
+# Activates trace_macros!(). Requires a nightly compiler.
+debug-trace-macros = []
