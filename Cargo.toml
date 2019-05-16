@@ -1,6 +1,6 @@
 [package]
 name = "newtype-ops"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
 description = "Mass-derive many operators for newtypes. Wartier than newtype_derive."
 documentation = "https://docs.rs/newtype-ops"
