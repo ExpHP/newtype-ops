@@ -1,0 +1,12 @@
+[package]
+name = "edition-2018"
+version = "0.1.0"
+authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "edition-2018"
+path = "main.rs"
+
+[dependencies]
+newtype-ops = { path = "../.." }
