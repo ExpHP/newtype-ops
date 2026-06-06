@@ -4,7 +4,7 @@ newtype-ops
 [![License](https://img.shields.io/crates/l/newtype-ops.svg)](LICENSE)
 [![Documentation](https://docs.rs/newtype-ops/badge.svg)](https://docs.rs/newtype-ops)
 [![Crates.io Version](https://img.shields.io/crates/v/newtype-ops.svg)](https://crates.io/crates/newtype-ops)
-[![Build Status](https://travis-ci.org/ExpHP/newtype-ops.svg?branch=master)](https://travis-ci.org/ExpHP/newtype-ops)
+[![Build Status](https://github.com/ExpHP/newtype-ops/actions/workflows/ci.yml/badge.svg)](https://github.com/ExpHP/newtype-ops/actions/workflows/ci.yml)
 
 A operator-deriving macro for newtypes that is wartier than [`newtype_derive`](https://github.com/DanielKeep/rust-custom-derive),
 and therefore better.<sup>[[_Citation needed_](https://en.wikipedia.org/wiki/Wikipedia:Citation_needed)]</sup>
