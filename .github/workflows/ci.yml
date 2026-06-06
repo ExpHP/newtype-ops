@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - beta
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+      - name: Run tests
+        run: cargo test
+      - name: Check edition-2015 test crate
+        run: cargo run
+        working-directory: test-crates/edition-2015
+      - name: Check edition-2018 test crate
+        run: cargo run
+        working-directory: test-crates/edition-2018
