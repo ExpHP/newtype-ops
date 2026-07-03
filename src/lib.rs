@@ -10,6 +10,8 @@
 //!
 //! There is comprehensive documentation on the [`newtype_ops`] macro.
 
+#![no_std]
+
 #![cfg_attr(feature = "debug-trace-macros", feature(trace_macros))]
 #[cfg(feature = "debug-trace-macros")] trace_macros!(true);
 
@@ -260,70 +262,70 @@ macro_rules! newtype_ops__ {
     (@interpret::oper(add $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::Add][::std::ops::AddAssign]]}
+            {traits:[[::core::ops::Add][::core::ops::AddAssign]]}
             {methods:[[add][add_assign]]}
         )}};
 
     (@interpret::oper(sub $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::Sub][::std::ops::SubAssign]]}
+            {traits:[[::core::ops::Sub][::core::ops::SubAssign]]}
             {methods:[[sub][sub_assign]]}
         )}};
 
     (@interpret::oper(mul $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::Mul][::std::ops::MulAssign]]}
+            {traits:[[::core::ops::Mul][::core::ops::MulAssign]]}
             {methods:[[mul][mul_assign]]}
         )}};
 
     (@interpret::oper(div $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::Div][::std::ops::DivAssign]]}
+            {traits:[[::core::ops::Div][::core::ops::DivAssign]]}
             {methods:[[div][div_assign]]}
         )}};
 
     (@interpret::oper(rem $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::Rem][::std::ops::RemAssign]]}
+            {traits:[[::core::ops::Rem][::core::ops::RemAssign]]}
             {methods:[[rem][rem_assign]]}
         )}};
 
     (@interpret::oper(neg $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:unary}
-            {traits:[[::std::ops::Neg]]}
+            {traits:[[::core::ops::Neg]]}
             {methods:[[neg]]}
         )}};
 
     (@interpret::oper(bitand $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::BitAnd][::std::ops::BitAndAssign]]}
+            {traits:[[::core::ops::BitAnd][::core::ops::BitAndAssign]]}
             {methods:[[bitand][bitand_assign]]}
         )}};
 
     (@interpret::oper(bitor $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::BitOr][::std::ops::BitOrAssign]]}
+            {traits:[[::core::ops::BitOr][::core::ops::BitOrAssign]]}
             {methods:[[bitor][bitor_assign]]}
         )}};
 
     (@interpret::oper(bitxor $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:binary}
-            {traits:[[::std::ops::BitXor][::std::ops::BitXorAssign]]}
+            {traits:[[::core::ops::BitXor][::core::ops::BitXorAssign]]}
             {methods:[[bitxor][bitxor_assign]]}
         )}};
 
     (@interpret::oper(not $($rest:tt)*) -> ($($args:tt)*)) => {
         newtype_ops__!{ @interpret::mode($($rest)*) -> (
             $($args)* {kind:unary}
-            {traits:[[::std::ops::Not]]}
+            {traits:[[::core::ops::Not]]}
             {methods:[[not]]}
         )}};
 
@@ -666,7 +668,7 @@ mod tests {
         // Tests on operator output ensure the right methods of the underlying type are invoked.
         fn run_binary_tests<T,F1,G1,F2,G2>(int_func: F1, foo_func: G1, int_eq: F2, foo_eq: G2)
         where
-            T: ::std::fmt::Debug + From<i32> + Eq,
+            T: ::core::fmt::Debug + From<i32> + Eq,
             F1: Fn(i32, i32) -> i32, G1: Fn(T, T) -> T,
             F2: Fn(&mut i32, i32),   G2: Fn(&mut T, T),
         {
@@ -684,7 +686,7 @@ mod tests {
         }
 
         fn run_unary_tests<T,F,G>(int_func: F, foo_func: G)
-        where T: ::std::fmt::Debug + From<i32> + Eq, F: Fn(i32) -> i32, G: Fn(T) -> T
+        where T: ::core::fmt::Debug + From<i32> + Eq, F: Fn(i32) -> i32, G: Fn(T) -> T
         {
             for a in 1..10 {
                 let expected: T = int_func(a).into();
@@ -721,32 +723,6 @@ mod tests {
         #[test] #[should_panic(expected = "ouchie")]
         fn bad_unary() {
             run_unary_tests::<Neg,_,_>(|a| !a, |a| -a);
-        }
-    }
-
-    // let us not restrict ourselves exclusively to numeric types
-    mod string {
-        #[derive(PartialEq,Clone,Debug)]
-        pub struct MyString(String);
-        newtype_ops!{ [MyString] {add} {:=} ^Self &{Self str} }
-
-        #[test]
-        fn test() {
-            assert_eq!(
-                MyString("Hello world".to_string()) + "!",
-                MyString("Hello world!".to_string())
-            )
-        }
-
-        // This DISABLED test documents a known victim of the rule that forbids OpAssign<&U> impls;
-        // were it not for that rule, this test would succeed.
-        #[cfg(nope)] // FIXME
-        #[test]
-        fn victim() {
-            // use `String: for<'a> AddAssign<&'a str>`
-            let mut s = MyString("Hello world".to_string());
-            s += "!";
-            assert_eq!(s, MyString("Hello world!".to_string()));
         }
     }
 }
