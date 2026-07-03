@@ -1,6 +1,6 @@
 [package]
 name = "newtype-ops"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Michael Lamparski <diagonaldevice@gmail.com>"]
 description = "Mass-derive many operators for newtypes. Wartier than newtype_derive."
 documentation = "https://docs.rs/newtype-ops"
@@ -18,3 +18,6 @@ readme = "README.md"
 #
 # Activates trace_macros!(). Requires a nightly compiler.
 debug-trace-macros = []
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(nope)'] }

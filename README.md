@@ -38,6 +38,11 @@ was so that I could link to docs.rs.
 
 [See the documentation for `newtype_ops!`](https://docs.rs/newtype-ops/*/newtype_ops/macro.newtype_ops.html)
 
+Changelog
+---------
+
+[Wheeee.](./CHANGES.md)
+
 License
 -------
 
