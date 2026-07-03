@@ -1,5 +1,7 @@
-
 #![no_std]
+
+// This test makes sure that all of the impls generated do not rely on `std`,
+// simply by using the macro in a `no_std` crate.
 
 use newtype_ops::newtype_ops;
 
